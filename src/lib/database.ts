@@ -24,6 +24,13 @@ export type ScheduleItem = {
 
 export type Announcement = string
 
+export type Account = {
+  name: string
+  username: string
+  email: string
+  password: string
+}
+
 export type SchoolData = {
   student: {
     name: string
@@ -38,6 +45,16 @@ export type SchoolData = {
 }
 
 const STORAGE_KEY = 'educampus-school-db-v1'
+const ACCOUNTS_KEY = 'educampus-accounts-v1'
+
+const defaultAccounts: Account[] = [
+  {
+    name: 'Amelia Scott',
+    username: 'amelia.scott',
+    email: 'student@educampus.edu',
+    password: 'password123',
+  },
+]
 
 export const defaultSchoolData: SchoolData = {
   student: {
@@ -119,4 +136,75 @@ export function persistTaskStatus(taskId: string, status: string) {
   const next = { ...current, tasks: updatedTasks }
   saveSchoolData(next)
   return next
+}
+
+export function addTask(task: Omit<Task, 'id'>) {
+  const current = loadSchoolData()
+  const nextTask: Task = {
+    ...task,
+    id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+  }
+
+  const next = {
+    ...current,
+    tasks: [nextTask, ...current.tasks],
+  }
+
+  saveSchoolData(next)
+  return next
+}
+
+export function addAnnouncement(message: string) {
+  const current = loadSchoolData()
+  const trimmed = message.trim()
+  if (!trimmed) {
+    return current
+  }
+
+  const next = {
+    ...current,
+    announcements: [trimmed, ...current.announcements],
+  }
+
+  saveSchoolData(next)
+  return next
+}
+
+export function updateStudent(student: SchoolData['student']) {
+  const current = loadSchoolData()
+  const next = {
+    ...current,
+    student,
+  }
+
+  saveSchoolData(next)
+  return next
+}
+
+export function loadAccounts(): Account[] {
+  if (typeof window === 'undefined') {
+    return defaultAccounts
+  }
+
+  const raw = window.localStorage.getItem(ACCOUNTS_KEY)
+  if (!raw) {
+    return defaultAccounts
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as Account[]
+    return parsed.length ? parsed : defaultAccounts
+  } catch {
+    return defaultAccounts
+  }
+}
+
+export function saveAccount(account: Account): Account[] {
+  const nextAccounts = [...loadAccounts(), account]
+
+  if (typeof window !== 'undefined') {
+    window.localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(nextAccounts))
+  }
+
+  return nextAccounts
 }

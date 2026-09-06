@@ -137,6 +137,33 @@
   text-decoration: none;
 }
 
+.text-btn {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #2563eb;
+  font: inherit;
+  cursor: pointer;
+}
+
+.auth-links {
+  margin-top: 18px;
+  text-align: center;
+}
+
+.auth-message {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.auth-message.error {
+  color: #b91c1c;
+}
+
+.auth-message.success {
+  color: #047857;
+}
+
 .primary-btn {
   border: none;
   background: linear-gradient(135deg, #2563eb, #7c3aed);
@@ -534,7 +561,11 @@
   margin-top: 18px;
 }
 
-.quick-actions button {
+.quick-actions button,
+.quick-actions a,
+.social-actions a,
+.ghost-btn,
+.small-btn {
   border: 1px solid #cbd5e1;
   background: white;
   color: #0f172a;
@@ -542,6 +573,54 @@
   padding: 10px 14px;
   font-weight: 600;
   cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.social-actions a {
+  flex: 1;
+}
+
+.ghost-btn,
+.small-btn {
+  border-radius: 12px;
+  padding: 8px 12px;
+}
+
+.small-btn {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: white;
+  border: none;
+}
+
+.inline-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.inline-form input,
+.inline-form select,
+.status-select {
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit;
+  background: white;
+  color: #0f172a;
+}
+
+.inline-form input:nth-child(3),
+.inline-form input:nth-child(4),
+.inline-form select {
+  grid-column: span 1;
+}
+
+.status-select {
+  min-width: 110px;
 }
 
 @media (max-width: 960px) {
