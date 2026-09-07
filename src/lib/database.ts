@@ -47,7 +47,7 @@ export type SchoolData = {
 const STORAGE_KEY = 'educampus-school-db-v1'
 const ACCOUNTS_KEY = 'educampus-accounts-v1'
 
-const defaultAccounts: Account[] = [
+export const defaultAccounts: Account[] = [
   {
     name: 'Amelia Scott',
     username: 'amelia.scott',
@@ -207,4 +207,67 @@ export function saveAccount(account: Account): Account[] {
   }
 
   return nextAccounts
+}
+
+async function request<T>(url: string, options?: RequestInit): Promise<T> {
+  const response = await fetch(url, {
+    headers: { 'Content-Type': 'application/json' },
+    ...options,
+  })
+
+  if (!response.ok) {
+    throw new Error(`Database request failed: ${response.status}`)
+  }
+
+  return response.json() as Promise<T>
+}
+
+export async function loadSchoolDataFromDatabase(): Promise<SchoolData | null> {
+  try {
+    return await request<SchoolData>('/api/school-data')
+  } catch {
+    return null
+  }
+}
+
+export async function saveSchoolDataToDatabase(data: SchoolData): Promise<boolean> {
+  try {
+    await request<SchoolData>('/api/school-data', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    })
+    return true
+  } catch {
+    return false
+  }
+}
+
+export async function loadAccountsFromDatabase(): Promise<Account[] | null> {
+  try {
+    return await request<Account[]>('/api/accounts')
+  } catch {
+    return null
+  }
+}
+
+export async function saveAccountToDatabase(account: Account): Promise<Account[] | null> {
+  try {
+    return await request<Account[]>('/api/accounts', {
+      method: 'POST',
+      body: JSON.stringify(account),
+    })
+  } catch {
+    return null
+  }
+}
+
+export async function migrateDataToDatabase(data: SchoolData, accounts: Account[]): Promise<{ data: SchoolData; accounts: Account[] } | null> {
+  try {
+    return await request<{ data: SchoolData; accounts: Account[] }>('/api/migrate', {
+      method: 'POST',
+      body: JSON.stringify({ data, accounts }),
+    })
+  } catch {
+    return null
+  }
 }

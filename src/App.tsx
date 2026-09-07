@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import { addAnnouncement, addTask, defaultSchoolData, loadAccounts, loadSchoolData, saveAccount, saveSchoolData, type Account, type SchoolData } from './lib/database'
+import { addAnnouncement, addTask, defaultSchoolData, loadAccounts, loadAccountsFromDatabase, loadSchoolData, loadSchoolDataFromDatabase, migrateDataToDatabase, saveAccount, saveAccountToDatabase, saveSchoolData, saveSchoolDataToDatabase, type Account, type SchoolData } from './lib/database'
+import MyCourse from './mycourse'
 import './App.css'
 
 const navItems = [
   { label: 'Dashboard', href: '#dashboard' },
-  { label: 'My courses', href: '#courses' },
+  { label: 'My courses', href: '#mycourses' },
   { label: 'Assignments', href: '#assignments' },
   { label: 'Grades', href: '#grades' },
   { label: 'Calendar', href: '#calendar' },
@@ -28,8 +29,18 @@ function App() {
     password: 'password123',
   })
   const [data, setData] = useState<SchoolData>(defaultSchoolData)
+  const [isHydrated, setIsHydrated] = useState(false)
+  const [currentView, setCurrentView] = useState<'dashboard' | 'courses'>('dashboard')
+  const [selectedCourseId, setSelectedCourseId] = useState('bio')
   const [showTaskForm, setShowTaskForm] = useState(false)
+  const [showCourseForm, setShowCourseForm] = useState(false)
   const [showAnnouncementForm, setShowAnnouncementForm] = useState(false)
+  const [newCourse, setNewCourse] = useState({
+    name: '',
+    teacher: '',
+    progress: 0,
+    badge: 'New course',
+  })
   const [newTask, setNewTask] = useState({
     title: '',
     course: 'Mathematics',
@@ -39,14 +50,77 @@ function App() {
   const [newAnnouncement, setNewAnnouncement] = useState('')
 
   useEffect(() => {
-    const saved = loadSchoolData()
-    setData(saved)
-    setAccounts(loadAccounts())
+    const hydrate = async () => {
+      const localData = loadSchoolData()
+      const localAccounts = loadAccounts()
+      const [remoteData, remoteAccounts] = await Promise.all([
+        loadSchoolDataFromDatabase(),
+        loadAccountsFromDatabase(),
+      ])
+
+      const shouldMigrate = !remoteData || !remoteAccounts?.length
+      const migrated = shouldMigrate
+        ? await migrateDataToDatabase(localData, localAccounts)
+        : null
+
+      setData(migrated?.data ?? remoteData ?? localData)
+      setAccounts(migrated?.accounts ?? remoteAccounts ?? localAccounts)
+      setIsHydrated(true)
+    }
+
+    void hydrate()
   }, [])
 
   useEffect(() => {
+    if (!isHydrated) {
+      return
+    }
+
     saveSchoolData(data)
-  }, [data])
+    void saveSchoolDataToDatabase(data)
+  }, [data, isHydrated])
+
+  const selectedCourse = data.courses.find((course) => course.id === selectedCourseId) ?? data.courses[0]
+  const selectedCourseTasks = data.tasks.filter((task) => task.course === selectedCourse?.name)
+
+  const openCourse = (courseId: string) => {
+    setSelectedCourseId(courseId)
+    window.history.replaceState(null, '', `#course-${courseId}`)
+    document.getElementById('course-workspace')?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  const chooseCourse = (courseId: string) => {
+    setSelectedCourseId(courseId)
+    setCurrentView('dashboard')
+    window.history.replaceState(null, '', `#course-${courseId}`)
+    window.requestAnimationFrame(() => {
+      document.getElementById('course-workspace')?.scrollIntoView({ behavior: 'smooth' })
+    })
+  }
+
+  const addCourseFromPage = (name: string, teacher: string) => {
+    const course = {
+      id: createId(),
+      name: name.trim(),
+      teacher: teacher.trim(),
+      progress: 0,
+      badge: 'New course',
+    }
+    setData((current) => ({ ...current, courses: [course, ...current.courses] }))
+    setSelectedCourseId(course.id)
+  }
+
+  const removeCourseFromPage = (courseId: string) => {
+    setData((current) => {
+      const courses = current.courses.filter((course) => course.id !== courseId)
+      return { ...current, courses }
+    })
+
+    if (selectedCourseId === courseId) {
+      const nextCourse = data.courses.find((course) => course.id !== courseId)
+      setSelectedCourseId(nextCourse?.id ?? '')
+    }
+  }
 
   const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -83,6 +157,7 @@ function App() {
 
     const account = { name: trimmedName, username: trimmedUsername, email: trimmedEmail, password: authForm.password }
     setAccounts(saveAccount(account))
+    void saveAccountToDatabase(account)
     setData((current) => ({ ...current, student: { ...current.student, name: trimmedName } }))
     setAuthError('')
     setIsLoggedIn(true)
@@ -133,16 +208,50 @@ function App() {
 
     const inserted = addTask(nextTask)
     setData(inserted)
+    void saveSchoolDataToDatabase(inserted)
     setNewTask({ title: '', course: 'Mathematics', due: 'Tomorrow', status: 'Ready' })
     setShowTaskForm(false)
+  }
+
+  const handleAddCourse = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (!newCourse.name.trim() || !newCourse.teacher.trim()) {
+      return
+    }
+
+    const course = {
+      ...newCourse,
+      id: createId(),
+      name: newCourse.name.trim(),
+      teacher: newCourse.teacher.trim(),
+    }
+    const next = { ...data, courses: [course, ...data.courses] }
+    setData(next)
+    setSelectedCourseId(course.id)
+    setNewCourse({ name: '', teacher: '', progress: 0, badge: 'New course' })
+    setShowCourseForm(false)
   }
 
   const handleAddAnnouncement = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const inserted = addAnnouncement(newAnnouncement)
     setData(inserted)
+    void saveSchoolDataToDatabase(inserted)
     setNewAnnouncement('')
     setShowAnnouncementForm(false)
+  }
+
+  const handleNavigation = (event: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href === '#mycourses') {
+      event.preventDefault()
+      setCurrentView('courses')
+      return
+    }
+
+    if (href === '#dashboard') {
+      event.preventDefault()
+      setCurrentView('dashboard')
+    }
   }
 
   if (!isLoggedIn) {
@@ -252,7 +361,12 @@ function App() {
 
         <nav className="nav">
           {navItems.map((item) => (
-            <a key={item.label} className={item.href === '#dashboard' ? 'active' : ''} href={item.href}>
+            <a
+              key={item.label}
+              className={(item.href === '#dashboard' && currentView === 'dashboard') || (item.href === '#mycourses' && currentView === 'courses') ? 'active' : ''}
+              href={item.href}
+              onClick={(event) => handleNavigation(event, item.href)}
+            >
               {item.label}
             </a>
           ))}
@@ -267,7 +381,17 @@ function App() {
         </div>
       </aside>
 
-      <main className="main-content" id="dashboard">
+      <main className="main-content" id={currentView === 'dashboard' ? 'dashboard' : 'mycourses'}>
+        {currentView === 'courses' ? (
+          <MyCourse
+            courses={data.courses}
+            selectedCourseId={selectedCourseId}
+            onSelectCourse={chooseCourse}
+            onAddCourse={addCourseFromPage}
+            onRemoveCourse={removeCourseFromPage}
+          />
+        ) : (
+          <>
         <header className="topbar">
           <div>
             <p className="eyebrow">Good morning</p>
@@ -307,11 +431,25 @@ function App() {
           <div className="panel" id="courses">
             <div className="panel-header">
               <h3>My courses</h3>
-              <a href="#courses">View all</a>
+              <div className="panel-actions">
+                <button type="button" className="ghost-btn" onClick={() => setShowCourseForm((current) => !current)}>
+                  {showCourseForm ? 'Close' : 'Add course'}
+                </button>
+                <a href="#course-workspace">View workspace</a>
+              </div>
             </div>
+            {showCourseForm && (
+              <form className="inline-form course-form" onSubmit={handleAddCourse}>
+                <input type="text" placeholder="Course name" value={newCourse.name} onChange={(event) => setNewCourse((current) => ({ ...current, name: event.target.value }))} />
+                <input type="text" placeholder="Teacher" value={newCourse.teacher} onChange={(event) => setNewCourse((current) => ({ ...current, teacher: event.target.value }))} />
+                <input type="number" min="0" max="100" placeholder="Progress" value={newCourse.progress} onChange={(event) => setNewCourse((current) => ({ ...current, progress: Number(event.target.value) }))} />
+                <input type="text" placeholder="Badge" value={newCourse.badge} onChange={(event) => setNewCourse((current) => ({ ...current, badge: event.target.value }))} />
+                <button type="submit" className="small-btn">Save course</button>
+              </form>
+            )}
             <ul className="class-list">
               {data.courses.map((course) => (
-                <li key={course.id}>
+                <li key={course.id} className={course.id === selectedCourseId ? 'selected' : ''}>
                   <div>
                     <h4>{course.name}</h4>
                     <p>{course.teacher}</p>
@@ -319,6 +457,7 @@ function App() {
                   <div className="course-meta">
                     <span className="badge">{course.badge}</span>
                     <strong>{course.progress}%</strong>
+                    <button type="button" className="small-btn" onClick={() => openCourse(course.id)}>Open course</button>
                   </div>
                 </li>
               ))}
@@ -387,6 +526,43 @@ function App() {
           </div>
         </section>
 
+        {selectedCourse && (
+          <section className="panel course-workspace" id="course-workspace">
+            <div className="panel-header">
+              <div>
+                <p className="eyebrow">Course workspace</p>
+                <h3>{selectedCourse.name}</h3>
+              </div>
+              <span className="badge">{selectedCourse.badge}</span>
+            </div>
+            <div className="course-workspace-grid">
+              <div>
+                <p className="workspace-label">Teacher</p>
+                <strong>{selectedCourse.teacher}</strong>
+              </div>
+              <div>
+                <p className="workspace-label">Progress</p>
+                <strong>{selectedCourse.progress}% complete</strong>
+                <div className="progress-bar"><span style={{ width: `${selectedCourse.progress}%` }} /></div>
+              </div>
+              <div>
+                <p className="workspace-label">Assignments</p>
+                <strong>{selectedCourseTasks.length ? `${selectedCourseTasks.length} linked task${selectedCourseTasks.length === 1 ? '' : 's'}` : 'No tasks yet'}</strong>
+              </div>
+            </div>
+            {selectedCourseTasks.length > 0 && (
+              <ul className="workspace-task-list">
+                {selectedCourseTasks.map((task) => (
+                  <li key={task.id}>
+                    <span>{task.title}</span>
+                    <span>{task.due}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        )}
+
         <section className="bottom-grid">
           <div className="panel" id="calendar">
             <div className="panel-header">
@@ -436,6 +612,8 @@ function App() {
             </div>
           </div>
         </section>
+          </>
+        )}
       </main>
     </div>
   )

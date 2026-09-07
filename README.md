@@ -1,5 +1,18 @@
 # React + TypeScript + Vite
 
+## MongoDB setup
+
+The app uses a small Express API to keep MongoDB credentials out of the browser. Copy `.env.example` to `.env` and set `MONGODB_URI` to your local MongoDB or MongoDB Atlas connection string. The API loads `.env` automatically.
+
+Run the frontend and API in separate terminals:
+
+```bash
+npm run dev:api
+npm run dev
+```
+
+The API listens on port `3001`; Vite proxies `/api` requests to it. If the API is unavailable, the app falls back to its existing browser storage so the UI can still be used offline.
+
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
 Currently, two official plugins are available:
