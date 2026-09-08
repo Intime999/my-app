@@ -3,6 +3,7 @@ import { addAnnouncement, addTask, defaultSchoolData, loadAccounts, loadAccounts
 import MyCourse from './mycourse'
 import AssignmentsPage from './assignments'
 import GradesPage from './grades'
+import CalendarPage from './calendar'
 import './App.css'
 
 const navItems = [
@@ -32,7 +33,7 @@ function App() {
   })
   const [data, setData] = useState<SchoolData>(defaultSchoolData)
   const [isHydrated, setIsHydrated] = useState(false)
-  const [currentView, setCurrentView] = useState<'dashboard' | 'courses' | 'assignments' | 'grades'>('dashboard')
+  const [currentView, setCurrentView] = useState<'dashboard' | 'courses' | 'assignments' | 'grades' | 'calendar'>('dashboard')
   const [selectedCourseId, setSelectedCourseId] = useState('bio')
   const [showTaskForm, setShowTaskForm] = useState(false)
   const [showCourseForm, setShowCourseForm] = useState(false)
@@ -217,6 +218,13 @@ function App() {
     })
   }
 
+  const handleAddCalendarEvent = (event: Omit<SchoolData['schedule'][number], 'id'>) => {
+    setData((current) => ({
+      ...current,
+      schedule: [...current.schedule, { ...event, id: createId() }],
+    }))
+  }
+
   const handleAddTask = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
@@ -302,6 +310,13 @@ function App() {
       event.preventDefault()
       setCurrentView('grades')
       window.history.replaceState(null, '', '#grades')
+      return
+    }
+
+    if (href === '#calendar') {
+      event.preventDefault()
+      setCurrentView('calendar')
+      window.history.replaceState(null, '', '#calendar')
       return
     }
   }
@@ -415,7 +430,7 @@ function App() {
           {navItems.map((item) => (
             <a
               key={item.label}
-              className={(item.href === '#dashboard' && currentView === 'dashboard') || (item.href === '#mycourses' && currentView === 'courses') || (item.href === '#assignments' && currentView === 'assignments') || (item.href === '#grades' && currentView === 'grades') ? 'active' : ''}
+              className={(item.href === '#dashboard' && currentView === 'dashboard') || (item.href === '#mycourses' && currentView === 'courses') || (item.href === '#assignments' && currentView === 'assignments') || (item.href === '#grades' && currentView === 'grades') || (item.href === '#calendar' && currentView === 'calendar') ? 'active' : ''}
               href={item.href}
               onClick={(event) => handleNavigation(event, item.href)}
             >
@@ -433,7 +448,7 @@ function App() {
         </div>
       </aside>
 
-      <main className="main-content" id={currentView === 'dashboard' ? 'dashboard' : currentView === 'courses' ? 'mycourses' : currentView === 'assignments' ? 'assignments' : 'grades'}>
+      <main className="main-content" id={currentView === 'dashboard' ? 'dashboard' : currentView === 'courses' ? 'mycourses' : currentView === 'assignments' ? 'assignments' : currentView === 'grades' ? 'grades' : 'calendar'}>
         {currentView === 'courses' ? (
           <MyCourse
             courses={data.courses}
@@ -458,6 +473,8 @@ function App() {
           />
         ) : currentView === 'grades' ? (
           <GradesPage courses={data.courses} grades={data.grades} onGradeChange={handleGradeChange} />
+        ) : currentView === 'calendar' ? (
+          <CalendarPage schedule={data.schedule} onAddEvent={handleAddCalendarEvent} />
         ) : (
           <>
         <header className="topbar">
