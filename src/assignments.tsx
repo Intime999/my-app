@@ -80,6 +80,11 @@ function AssignmentsPage({ courses, tasks, statusOptions, onStatusChange, onAddT
             <p className="eyebrow">Task workspace</p>
             <h2>{activeTask.title}</h2>
             <p>{activeTask.course} - {activeTask.due}</p>
+            <div className="task-instructions">
+              <strong>What to do</strong>
+              <p>{activeTask.instructions || 'Review the lesson notes and complete the assigned work carefully.'}</p>
+              <span>Suggested time: {activeTask.estimatedTime || '20 minutes'}</span>
+            </div>
           </div>
           <div className="task-workspace-actions">
             <label>

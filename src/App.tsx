@@ -47,6 +47,8 @@ function App() {
     course: 'Mathematics',
     due: 'Tomorrow',
     status: 'Ready',
+    instructions: '',
+    estimatedTime: '20 minutes',
   })
   const [newAnnouncement, setNewAnnouncement] = useState('')
 
@@ -205,12 +207,14 @@ function App() {
       course: newTask.course,
       due: newTask.due,
       status: newTask.status,
+      instructions: newTask.instructions.trim() || 'Review the lesson notes and complete the assigned work carefully.',
+      estimatedTime: newTask.estimatedTime,
     }
 
     const inserted = addTask(nextTask)
     setData(inserted)
     void saveSchoolDataToDatabase(inserted)
-    setNewTask({ title: '', course: 'Mathematics', due: 'Tomorrow', status: 'Ready' })
+    setNewTask({ title: '', course: 'Mathematics', due: 'Tomorrow', status: 'Ready', instructions: '', estimatedTime: '20 minutes' })
     setShowTaskForm(false)
   }
 
@@ -507,6 +511,18 @@ function App() {
                   placeholder="Due date"
                   value={newTask.due}
                   onChange={(event) => setNewTask((current) => ({ ...current, due: event.target.value }))}
+                />
+                <input
+                  type="text"
+                  placeholder="What should the student do?"
+                  value={newTask.instructions}
+                  onChange={(event) => setNewTask((current) => ({ ...current, instructions: event.target.value }))}
+                />
+                <input
+                  type="text"
+                  placeholder="Estimated time"
+                  value={newTask.estimatedTime}
+                  onChange={(event) => setNewTask((current) => ({ ...current, estimatedTime: event.target.value }))}
                 />
                 <select
                   value={newTask.status}

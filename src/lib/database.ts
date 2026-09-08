@@ -12,6 +12,8 @@ export type Task = {
   course: string
   due: string
   status: string
+  instructions?: string
+  estimatedTime?: string
 }
 
 export type ScheduleItem = {
@@ -78,9 +80,9 @@ export const defaultSchoolData: SchoolData = {
     { id: 'code', name: 'Coding Lab', teacher: 'Mr. Hall', progress: 95, badge: 'New' },
   ],
   tasks: [
-    { id: 'essay', title: 'Essay Draft', course: 'Literature', due: 'Due today', status: 'In review' },
-    { id: 'quiz', title: 'Quiz Practice', course: 'Mathematics', due: 'Due tomorrow', status: 'Ready' },
-    { id: 'lab', title: 'Lab Reflection', course: 'Biology', due: 'Friday', status: 'Pending' },
+    { id: 'essay', title: 'Essay Draft', course: 'Literature', due: 'Due today', status: 'In review', instructions: 'Write a clear introduction and one body paragraph about the main idea in this week\'s reading.', estimatedTime: '30 minutes' },
+    { id: 'quiz', title: 'Quiz Practice', course: 'Mathematics', due: 'Due tomorrow', status: 'Ready', instructions: 'Complete the practice problems, then check each answer and circle the problem you want to review.', estimatedTime: '20 minutes' },
+    { id: 'lab', title: 'Lab Reflection', course: 'Biology', due: 'Friday', status: 'Pending', instructions: 'Describe what you observed in the lab, explain why it happened, and include one question you still have.', estimatedTime: '25 minutes' },
   ],
   schedule: [
     { id: 'mon', day: 'Mon', slot: '9:00 AM', label: 'Algebra', active: true },
@@ -113,7 +115,7 @@ export function loadSchoolData(): SchoolData {
       student: { ...defaultSchoolData.student, ...parsed.student },
       stats: parsed.stats?.length ? parsed.stats : defaultSchoolData.stats,
       courses: parsed.courses?.length ? parsed.courses : defaultSchoolData.courses,
-      tasks: parsed.tasks?.length ? parsed.tasks : defaultSchoolData.tasks,
+      tasks: parsed.tasks?.length ? parsed.tasks.map((task) => ({ ...task })) : defaultSchoolData.tasks,
       schedule: parsed.schedule?.length ? parsed.schedule : defaultSchoolData.schedule,
       announcements: parsed.announcements?.length ? parsed.announcements : defaultSchoolData.announcements,
     }
