@@ -5,6 +5,8 @@ import AssignmentsPage from './assignments'
 import GradesPage from './grades'
 import CalendarPage from './calendar'
 import MessagesPage from './messages'
+import BoardPage from './board'
+import StudentsPage from './students'
 import './App.css'
 
 const navItems = [
@@ -14,6 +16,8 @@ const navItems = [
   { label: 'Grades', href: '#grades' },
   { label: 'Calendar', href: '#calendar' },
   { label: 'Messages', href: '#messages' },
+  { label: 'Board', href: '#board' },
+  { label: 'Students', href: '#students' },
 ]
 
 const statusOptions = ['Ready', 'In review', 'Pending', 'Completed']
@@ -34,7 +38,7 @@ function App() {
   })
   const [data, setData] = useState<SchoolData>(defaultSchoolData)
   const [isHydrated, setIsHydrated] = useState(false)
-  const [currentView, setCurrentView] = useState<'dashboard' | 'courses' | 'assignments' | 'grades' | 'calendar' | 'messages'>('dashboard')
+  const [currentView, setCurrentView] = useState<'dashboard' | 'courses' | 'assignments' | 'grades' | 'calendar' | 'messages' | 'board' | 'students'>('dashboard')
   const [selectedCourseId, setSelectedCourseId] = useState('bio')
   const [showTaskForm, setShowTaskForm] = useState(false)
   const [showCourseForm, setShowCourseForm] = useState(false)
@@ -237,6 +241,32 @@ function App() {
     setData((current) => ({ ...current, messages: [...current.messages, message] }))
   }
 
+  const handleAddBoardPost = (courseId: string, body: string) => {
+    const post = {
+      id: createId(),
+      courseId,
+      author: data.student.name,
+      body,
+      createdAt: new Date().toLocaleString([], { weekday: 'short', hour: 'numeric', minute: '2-digit' }),
+    }
+    setData((current) => ({ ...current, boardPosts: [...current.boardPosts, post] }))
+  }
+
+  const handleAddStudent = (student: Account) => {
+    if (!student.name || !student.username || !student.email || !student.password) {
+      return 'Complete every field before creating the account.'
+    }
+
+    if (accounts.some((account) => account.username === student.username || account.email === student.email)) {
+      return 'That username or email is already registered.'
+    }
+
+    setAccounts((current) => [...current, student])
+    saveAccount(student)
+    void saveAccountToDatabase(student)
+    return null
+  }
+
   const handleAddTask = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
@@ -336,6 +366,20 @@ function App() {
       event.preventDefault()
       setCurrentView('messages')
       window.history.replaceState(null, '', '#messages')
+      return
+    }
+
+    if (href === '#board') {
+      event.preventDefault()
+      setCurrentView('board')
+      window.history.replaceState(null, '', '#board')
+      return
+    }
+
+    if (href === '#students') {
+      event.preventDefault()
+      setCurrentView('students')
+      window.history.replaceState(null, '', '#students')
       return
     }
   }
@@ -449,7 +493,7 @@ function App() {
           {navItems.map((item) => (
             <a
               key={item.label}
-              className={(item.href === '#dashboard' && currentView === 'dashboard') || (item.href === '#mycourses' && currentView === 'courses') || (item.href === '#assignments' && currentView === 'assignments') || (item.href === '#grades' && currentView === 'grades') || (item.href === '#calendar' && currentView === 'calendar') || (item.href === '#messages' && currentView === 'messages') ? 'active' : ''}
+              className={(item.href === '#dashboard' && currentView === 'dashboard') || (item.href === '#mycourses' && currentView === 'courses') || (item.href === '#assignments' && currentView === 'assignments') || (item.href === '#grades' && currentView === 'grades') || (item.href === '#calendar' && currentView === 'calendar') || (item.href === '#messages' && currentView === 'messages') || (item.href === '#board' && currentView === 'board') || (item.href === '#students' && currentView === 'students') ? 'active' : ''}
               href={item.href}
               onClick={(event) => handleNavigation(event, item.href)}
             >
@@ -467,7 +511,7 @@ function App() {
         </div>
       </aside>
 
-      <main className="main-content" id={currentView === 'dashboard' ? 'dashboard' : currentView === 'courses' ? 'mycourses' : currentView === 'assignments' ? 'assignments' : currentView === 'grades' ? 'grades' : currentView === 'calendar' ? 'calendar' : 'messages'}>
+      <main className="main-content" id={currentView === 'dashboard' ? 'dashboard' : currentView === 'courses' ? 'mycourses' : currentView === 'assignments' ? 'assignments' : currentView === 'grades' ? 'grades' : currentView === 'calendar' ? 'calendar' : currentView === 'messages' ? 'messages' : currentView === 'board' ? 'board' : 'students'}>
         {currentView === 'courses' ? (
           <MyCourse
             courses={data.courses}
@@ -496,6 +540,10 @@ function App() {
           <CalendarPage schedule={data.schedule} onAddEvent={handleAddCalendarEvent} />
         ) : currentView === 'messages' ? (
           <MessagesPage courses={data.courses} messages={data.messages} studentName={data.student.name} onAddMessage={handleAddMessage} />
+        ) : currentView === 'board' ? (
+          <BoardPage courses={data.courses} posts={data.boardPosts} studentName={data.student.name} onAddPost={handleAddBoardPost} />
+        ) : currentView === 'students' ? (
+          <StudentsPage accounts={accounts} onAddStudent={handleAddStudent} />
         ) : (
           <>
         <header className="topbar">
@@ -523,7 +571,19 @@ function App() {
 
         <section className="stats-grid">
           {data.stats.map((item) => (
-            <article key={item.label} className={`stat-card ${item.tone}`}>
+            <article
+              key={item.label}
+              className={`stat-card ${item.tone} stat-card-clickable`}
+              role="button"
+              tabIndex={0}
+              onClick={() => setCurrentView(item.label === 'Courses' ? 'courses' : item.label === 'Completion' ? 'assignments' : item.label === 'Points' ? 'grades' : 'calendar')}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  setCurrentView(item.label === 'Courses' ? 'courses' : item.label === 'Completion' ? 'assignments' : item.label === 'Points' ? 'grades' : 'calendar')
+                }
+              }}
+            >
               <span>{item.label}</span>
               <strong>{item.value}</strong>
             </article>
@@ -664,6 +724,7 @@ function App() {
             <div className="quick-actions" id="reset-password">
               <a href="#courses">Study notes</a>
               <a href="#messages" onClick={(event) => handleNavigation(event, '#messages')}>Open messages</a>
+              <a href="#board" onClick={(event) => handleNavigation(event, '#board')}>Open class board</a>
               <a href="#assignments">Submit work</a>
             </div>
           </div>

@@ -38,6 +38,14 @@ export type Message = {
   createdAt: string
 }
 
+export type BoardPost = {
+  id: string
+  courseId: string
+  author: string
+  body: string
+  createdAt: string
+}
+
 export type GradeRecord = {
   courseId: string
   score: number
@@ -64,6 +72,7 @@ export type SchoolData = {
   schedule: ScheduleItem[]
   announcements: Announcement[]
   messages: Message[]
+  boardPosts: BoardPost[]
   grades: GradeRecord[]
 }
 
@@ -121,6 +130,10 @@ export const defaultSchoolData: SchoolData = {
     { id: 'message-bio-2', courseId: 'bio', author: 'Ms. Smith', body: 'Remember to bring your observation notes to our next Biology session.', createdAt: 'Yesterday, 3:40 PM' },
     { id: 'message-math-1', courseId: 'math', author: 'Avery Chen', body: 'I found a helpful way to check the last practice problem. Happy to share it here.', createdAt: 'Mon, 2:18 PM' },
   ],
+  boardPosts: [
+    { id: 'board-bio-1', courseId: 'bio', author: 'Jordan Lee', body: 'What was the most surprising result from today\'s experiment?', createdAt: 'Today, 10:05 AM' },
+    { id: 'board-math-1', courseId: 'math', author: 'Mr. Owen', body: 'Post one practice problem you would like us to solve together.', createdAt: 'Yesterday, 1:30 PM' },
+  ],
   grades: [
     { courseId: 'bio', score: 82, letter: 'B', feedback: 'Strong observations in your lab work. Keep explaining your evidence clearly.' },
     { courseId: 'math', score: 91, letter: 'A-', feedback: 'Excellent problem solving. Review the last practice question for an even stronger result.' },
@@ -151,6 +164,7 @@ export function loadSchoolData(): SchoolData {
       schedule: parsed.schedule?.length ? parsed.schedule : defaultSchoolData.schedule,
       announcements: parsed.announcements?.length ? parsed.announcements : defaultSchoolData.announcements,
       messages: parsed.messages?.length ? parsed.messages : defaultSchoolData.messages,
+      boardPosts: parsed.boardPosts?.length ? parsed.boardPosts : defaultSchoolData.boardPosts,
       grades: parsed.grades?.length ? parsed.grades : defaultSchoolData.grades,
     }
   } catch {
@@ -269,6 +283,7 @@ export async function loadSchoolDataFromDatabase(): Promise<SchoolData | null> {
       ...data,
       student: { ...defaultSchoolData.student, ...data.student },
       messages: data.messages?.length ? data.messages : defaultSchoolData.messages,
+      boardPosts: data.boardPosts?.length ? data.boardPosts : defaultSchoolData.boardPosts,
     }
   } catch {
     return null
