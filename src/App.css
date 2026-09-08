@@ -451,6 +451,30 @@
 
 .assignments-page { padding-top: 8px; }
 
+.grades-page { padding-top: 8px; }
+
+.grades-page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.grades-page-header h1 { margin: 4px 0 8px; color: #0f172a; font-size: clamp(2rem, 4vw, 3rem); }
+.grades-page-header > div > p:last-child { margin: 0; color: #64748b; }
+.grade-average { display: flex; flex-direction: column; gap: 2px; padding: 16px 20px; border-left: 4px solid #16a34a; border-radius: 14px; background: white; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05); }
+.grade-average strong { color: #15803d; font-size: 1.8rem; }
+.grade-average span { color: #64748b; font-size: 0.8rem; }
+
+.grade-list { display: flex; flex-direction: column; gap: 14px; }
+.grade-row { display: grid; grid-template-columns: 1.1fr 110px 110px 1.5fr; align-items: end; gap: 16px; padding: 22px; border: 1px solid rgba(148, 163, 184, 0.24); border-radius: 18px; background: rgba(255, 255, 255, 0.86); box-shadow: 0 12px 32px rgba(15, 23, 42, 0.04); }
+.grade-course h2 { margin: 7px 0 3px; color: #0f172a; font-size: 1.2rem; }
+.grade-course p { margin: 0; color: #64748b; }
+.grade-row label { display: flex; flex-direction: column; gap: 6px; color: #475569; font-size: 0.78rem; font-weight: 700; }
+.grade-row input, .grade-row select, .grade-row textarea { width: 100%; padding: 10px 11px; border: 1px solid #cbd5e1; border-radius: 10px; background: white; color: #0f172a; font: inherit; }
+.grade-row textarea { resize: vertical; }
+
 .assignments-page-header {
   display: flex;
   align-items: flex-end;
@@ -1038,6 +1062,20 @@
     width: 100%;
   }
 
+  .grades-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .grade-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .grade-course,
+  .grade-feedback {
+    grid-column: span 2;
+  }
+
   .schedule-grid {
     grid-template-columns: 1fr;
   }
@@ -1070,6 +1108,15 @@
 
   .assignment-form textarea,
   .file-input-label {
+    grid-column: span 1;
+  }
+
+  .grade-row {
+    grid-template-columns: 1fr;
+  }
+
+  .grade-course,
+  .grade-feedback {
     grid-column: span 1;
   }
 

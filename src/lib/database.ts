@@ -30,6 +30,13 @@ export type ScheduleItem = {
 
 export type Announcement = string
 
+export type GradeRecord = {
+  courseId: string
+  score: number
+  letter: string
+  feedback: string
+}
+
 export type Account = {
   name: string
   username: string
@@ -48,6 +55,7 @@ export type SchoolData = {
   tasks: Task[]
   schedule: ScheduleItem[]
   announcements: Announcement[]
+  grades: GradeRecord[]
 }
 
 const STORAGE_KEY = 'educampus-school-db-v1'
@@ -99,6 +107,12 @@ export const defaultSchoolData: SchoolData = {
     'The school counselling session is available on Friday.',
     'New assignment feedback is ready in the portal.',
   ],
+  grades: [
+    { courseId: 'bio', score: 82, letter: 'B', feedback: 'Strong observations in your lab work. Keep explaining your evidence clearly.' },
+    { courseId: 'math', score: 91, letter: 'A-', feedback: 'Excellent problem solving. Review the last practice question for an even stronger result.' },
+    { courseId: 'lit', score: 78, letter: 'C+', feedback: 'Your ideas are thoughtful. Add more evidence from the text to support each point.' },
+    { courseId: 'code', score: 95, letter: 'A', feedback: 'Great progress and careful debugging.' },
+  ],
 }
 
 export function loadSchoolData(): SchoolData {
@@ -122,6 +136,7 @@ export function loadSchoolData(): SchoolData {
       tasks: parsed.tasks?.length ? parsed.tasks.map((task) => ({ ...task })) : defaultSchoolData.tasks,
       schedule: parsed.schedule?.length ? parsed.schedule : defaultSchoolData.schedule,
       announcements: parsed.announcements?.length ? parsed.announcements : defaultSchoolData.announcements,
+      grades: parsed.grades?.length ? parsed.grades : defaultSchoolData.grades,
     }
   } catch {
     return defaultSchoolData

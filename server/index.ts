@@ -63,7 +63,7 @@ app.get('/api/school-data', async (_request, response) => {
   }
 
   const { _id: _ignoredId, ...schoolData } = record
-  response.json(schoolData)
+  response.json({ ...defaultSchoolData, ...schoolData, grades: schoolData.grades?.length ? schoolData.grades : defaultSchoolData.grades })
 })
 
 app.put('/api/school-data', async (request, response) => {

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { addAnnouncement, addTask, defaultSchoolData, loadAccounts, loadAccountsFromDatabase, loadSchoolData, loadSchoolDataFromDatabase, migrateDataToDatabase, saveAccount, saveAccountToDatabase, saveSchoolData, saveSchoolDataToDatabase, type Account, type SchoolData } from './lib/database'
 import MyCourse from './mycourse'
 import AssignmentsPage from './assignments'
+import GradesPage from './grades'
 import './App.css'
 
 const navItems = [
@@ -31,7 +32,7 @@ function App() {
   })
   const [data, setData] = useState<SchoolData>(defaultSchoolData)
   const [isHydrated, setIsHydrated] = useState(false)
-  const [currentView, setCurrentView] = useState<'dashboard' | 'courses' | 'assignments'>('dashboard')
+  const [currentView, setCurrentView] = useState<'dashboard' | 'courses' | 'assignments' | 'grades'>('dashboard')
   const [selectedCourseId, setSelectedCourseId] = useState('bio')
   const [showTaskForm, setShowTaskForm] = useState(false)
   const [showCourseForm, setShowCourseForm] = useState(false)
@@ -196,6 +197,26 @@ function App() {
     }))
   }
 
+  const handleGradeChange = (courseId: string, field: 'score' | 'letter' | 'feedback', value: string) => {
+    setData((current) => {
+      const existingGrade = current.grades.find((grade) => grade.courseId === courseId) ?? {
+        courseId,
+        score: 0,
+        letter: 'A',
+        feedback: '',
+      }
+      const nextGrade = {
+        ...existingGrade,
+        [field]: field === 'score' ? Math.min(100, Math.max(0, Number(value))) : value,
+      }
+      const hasGrade = current.grades.some((grade) => grade.courseId === courseId)
+      const grades = hasGrade
+        ? current.grades.map((grade) => grade.courseId === courseId ? nextGrade : grade)
+        : [...current.grades, nextGrade]
+      return { ...current, grades }
+    })
+  }
+
   const handleAddTask = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
@@ -275,6 +296,11 @@ function App() {
     if (href === '#assignments') {
       event.preventDefault()
       setCurrentView('assignments')
+    }
+
+    if (href === '#grades') {
+      event.preventDefault()
+      setCurrentView('grades')
     }
   }
 
@@ -387,7 +413,7 @@ function App() {
           {navItems.map((item) => (
             <a
               key={item.label}
-              className={(item.href === '#dashboard' && currentView === 'dashboard') || (item.href === '#mycourses' && currentView === 'courses') || (item.href === '#assignments' && currentView === 'assignments') ? 'active' : ''}
+              className={(item.href === '#dashboard' && currentView === 'dashboard') || (item.href === '#mycourses' && currentView === 'courses') || (item.href === '#assignments' && currentView === 'assignments') || (item.href === '#grades' && currentView === 'grades') ? 'active' : ''}
               href={item.href}
               onClick={(event) => handleNavigation(event, item.href)}
             >
@@ -405,7 +431,7 @@ function App() {
         </div>
       </aside>
 
-      <main className="main-content" id={currentView === 'dashboard' ? 'dashboard' : currentView === 'courses' ? 'mycourses' : 'assignments'}>
+      <main className="main-content" id={currentView === 'dashboard' ? 'dashboard' : currentView === 'courses' ? 'mycourses' : currentView === 'assignments' ? 'assignments' : 'grades'}>
         {currentView === 'courses' ? (
           <MyCourse
             courses={data.courses}
@@ -428,6 +454,8 @@ function App() {
             onTaskFileChange={setNewTaskFile}
             onAddTask={handleAddTask}
           />
+        ) : currentView === 'grades' ? (
+          <GradesPage courses={data.courses} grades={data.grades} onGradeChange={handleGradeChange} />
         ) : (
           <>
         <header className="topbar">
