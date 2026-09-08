@@ -484,6 +484,36 @@
 .calendar-event-list p, .calendar-empty p { margin: 0; color: #64748b; font-size: 0.85rem; }
 .calendar-empty { padding: 24px 0 8px; color: #334155; }
 
+.messages-page { padding-top: 8px; }
+.messages-page-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 24px; }
+.messages-page-header h1 { margin: 4px 0 8px; color: #0f172a; font-size: clamp(2rem, 4vw, 3rem); }
+.messages-page-header > div > p:last-child { margin: 0; color: #64748b; }
+.message-student-label { padding: 10px 14px; border-radius: 999px; background: #ecfdf5; color: #047857; font-size: 0.82rem; font-weight: 700; }
+.messages-layout { display: grid; grid-template-columns: minmax(210px, 0.7fr) minmax(0, 1.8fr); gap: 18px; align-items: start; }
+.message-course-list, .message-thread { padding: 22px; border: 1px solid rgba(148, 163, 184, 0.24); border-radius: 20px; background: rgba(255, 255, 255, 0.86); box-shadow: 0 12px 32px rgba(15, 23, 42, 0.04); }
+.message-course-list h2 { margin: 0; color: #0f172a; font-size: 1.1rem; }
+.message-course-list button { display: flex; align-items: center; justify-content: space-between; width: 100%; gap: 12px; padding: 13px 12px; border: 1px solid transparent; border-radius: 12px; background: transparent; color: #334155; text-align: left; cursor: pointer; }
+.message-course-list button:hover, .message-course-list button.selected { border-color: #bfdbfe; background: #eff6ff; }
+.message-course-list button span { display: flex; flex-direction: column; gap: 3px; }
+.message-course-list button strong { color: #0f172a; }
+.message-course-list button small { color: #64748b; }
+.message-course-list button em { min-width: 24px; padding: 4px 6px; border-radius: 999px; background: #e2e8f0; color: #475569; font-size: 0.72rem; font-style: normal; text-align: center; }
+.message-thread-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding-bottom: 18px; border-bottom: 1px solid #e2e8f0; }
+.message-thread-header h2 { margin: 4px 0 3px; color: #0f172a; }
+.message-thread-header p:last-child { margin: 0; color: #64748b; }
+.message-list { display: flex; min-height: 260px; flex-direction: column; gap: 12px; padding: 20px 0; }
+.message-bubble { align-self: flex-start; max-width: 78%; padding: 13px 15px; border-radius: 4px 16px 16px 16px; background: #f1f5f9; }
+.message-bubble.own-message { align-self: flex-end; border-radius: 16px 4px 16px 16px; background: #dbeafe; }
+.message-meta { display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px; }
+.message-meta strong { color: #0f172a; font-size: 0.88rem; }
+.message-meta time { color: #64748b; font-size: 0.72rem; }
+.message-bubble p { margin: 0; color: #334155; line-height: 1.5; }
+.message-empty { display: grid; min-height: 220px; place-content: center; color: #334155; text-align: center; }
+.message-empty p { margin: 6px 0 0; color: #64748b; }
+.message-compose { display: flex; align-items: flex-end; gap: 12px; padding-top: 18px; border-top: 1px solid #e2e8f0; }
+.message-compose textarea { flex: 1; resize: vertical; padding: 12px; border: 1px solid #cbd5e1; border-radius: 12px; background: white; color: #0f172a; font: inherit; }
+
+
 .grades-page-header {
   display: flex;
   align-items: flex-end;
@@ -1101,6 +1131,24 @@
   .calendar-page-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .messages-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .messages-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .message-compose {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .message-compose .primary-btn {
+    width: 100%;
   }
 
   .calendar-form {

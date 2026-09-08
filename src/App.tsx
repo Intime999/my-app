@@ -4,6 +4,7 @@ import MyCourse from './mycourse'
 import AssignmentsPage from './assignments'
 import GradesPage from './grades'
 import CalendarPage from './calendar'
+import MessagesPage from './messages'
 import './App.css'
 
 const navItems = [
@@ -33,7 +34,7 @@ function App() {
   })
   const [data, setData] = useState<SchoolData>(defaultSchoolData)
   const [isHydrated, setIsHydrated] = useState(false)
-  const [currentView, setCurrentView] = useState<'dashboard' | 'courses' | 'assignments' | 'grades' | 'calendar'>('dashboard')
+  const [currentView, setCurrentView] = useState<'dashboard' | 'courses' | 'assignments' | 'grades' | 'calendar' | 'messages'>('dashboard')
   const [selectedCourseId, setSelectedCourseId] = useState('bio')
   const [showTaskForm, setShowTaskForm] = useState(false)
   const [showCourseForm, setShowCourseForm] = useState(false)
@@ -225,6 +226,17 @@ function App() {
     }))
   }
 
+  const handleAddMessage = (courseId: string, body: string) => {
+    const message = {
+      id: createId(),
+      courseId,
+      author: data.student.name,
+      body,
+      createdAt: new Date().toLocaleString([], { weekday: 'short', hour: 'numeric', minute: '2-digit' }),
+    }
+    setData((current) => ({ ...current, messages: [...current.messages, message] }))
+  }
+
   const handleAddTask = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
@@ -317,6 +329,13 @@ function App() {
       event.preventDefault()
       setCurrentView('calendar')
       window.history.replaceState(null, '', '#calendar')
+      return
+    }
+
+    if (href === '#messages') {
+      event.preventDefault()
+      setCurrentView('messages')
+      window.history.replaceState(null, '', '#messages')
       return
     }
   }
@@ -430,7 +449,7 @@ function App() {
           {navItems.map((item) => (
             <a
               key={item.label}
-              className={(item.href === '#dashboard' && currentView === 'dashboard') || (item.href === '#mycourses' && currentView === 'courses') || (item.href === '#assignments' && currentView === 'assignments') || (item.href === '#grades' && currentView === 'grades') || (item.href === '#calendar' && currentView === 'calendar') ? 'active' : ''}
+              className={(item.href === '#dashboard' && currentView === 'dashboard') || (item.href === '#mycourses' && currentView === 'courses') || (item.href === '#assignments' && currentView === 'assignments') || (item.href === '#grades' && currentView === 'grades') || (item.href === '#calendar' && currentView === 'calendar') || (item.href === '#messages' && currentView === 'messages') ? 'active' : ''}
               href={item.href}
               onClick={(event) => handleNavigation(event, item.href)}
             >
@@ -448,7 +467,7 @@ function App() {
         </div>
       </aside>
 
-      <main className="main-content" id={currentView === 'dashboard' ? 'dashboard' : currentView === 'courses' ? 'mycourses' : currentView === 'assignments' ? 'assignments' : currentView === 'grades' ? 'grades' : 'calendar'}>
+      <main className="main-content" id={currentView === 'dashboard' ? 'dashboard' : currentView === 'courses' ? 'mycourses' : currentView === 'assignments' ? 'assignments' : currentView === 'grades' ? 'grades' : currentView === 'calendar' ? 'calendar' : 'messages'}>
         {currentView === 'courses' ? (
           <MyCourse
             courses={data.courses}
@@ -475,6 +494,8 @@ function App() {
           <GradesPage courses={data.courses} grades={data.grades} onGradeChange={handleGradeChange} />
         ) : currentView === 'calendar' ? (
           <CalendarPage schedule={data.schedule} onAddEvent={handleAddCalendarEvent} />
+        ) : currentView === 'messages' ? (
+          <MessagesPage courses={data.courses} messages={data.messages} studentName={data.student.name} onAddMessage={handleAddMessage} />
         ) : (
           <>
         <header className="topbar">
@@ -614,7 +635,7 @@ function App() {
         )}
 
         <section className="bottom-grid">
-          <div className="panel" id="messages">
+          <div className="panel" id="announcements">
             <div className="panel-header">
               <h3>Announcements</h3>
               <button type="button" className="ghost-btn" onClick={() => setShowAnnouncementForm((current) => !current)}>
@@ -642,7 +663,7 @@ function App() {
 
             <div className="quick-actions" id="reset-password">
               <a href="#courses">Study notes</a>
-              <a href="#messages">Meet tutor</a>
+              <a href="#messages" onClick={(event) => handleNavigation(event, '#messages')}>Open messages</a>
               <a href="#assignments">Submit work</a>
             </div>
           </div>

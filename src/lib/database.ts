@@ -30,6 +30,14 @@ export type ScheduleItem = {
 
 export type Announcement = string
 
+export type Message = {
+  id: string
+  courseId: string
+  author: string
+  body: string
+  createdAt: string
+}
+
 export type GradeRecord = {
   courseId: string
   score: number
@@ -55,6 +63,7 @@ export type SchoolData = {
   tasks: Task[]
   schedule: ScheduleItem[]
   announcements: Announcement[]
+  messages: Message[]
   grades: GradeRecord[]
 }
 
@@ -107,6 +116,11 @@ export const defaultSchoolData: SchoolData = {
     'The school counselling session is available on Friday.',
     'New assignment feedback is ready in the portal.',
   ],
+  messages: [
+    { id: 'message-bio-1', courseId: 'bio', author: 'Jordan Lee', body: 'Does anyone want to review the lab questions together after class?', createdAt: 'Today, 9:12 AM' },
+    { id: 'message-bio-2', courseId: 'bio', author: 'Ms. Smith', body: 'Remember to bring your observation notes to our next Biology session.', createdAt: 'Yesterday, 3:40 PM' },
+    { id: 'message-math-1', courseId: 'math', author: 'Avery Chen', body: 'I found a helpful way to check the last practice problem. Happy to share it here.', createdAt: 'Mon, 2:18 PM' },
+  ],
   grades: [
     { courseId: 'bio', score: 82, letter: 'B', feedback: 'Strong observations in your lab work. Keep explaining your evidence clearly.' },
     { courseId: 'math', score: 91, letter: 'A-', feedback: 'Excellent problem solving. Review the last practice question for an even stronger result.' },
@@ -136,6 +150,7 @@ export function loadSchoolData(): SchoolData {
       tasks: parsed.tasks?.length ? parsed.tasks.map((task) => ({ ...task })) : defaultSchoolData.tasks,
       schedule: parsed.schedule?.length ? parsed.schedule : defaultSchoolData.schedule,
       announcements: parsed.announcements?.length ? parsed.announcements : defaultSchoolData.announcements,
+      messages: parsed.messages?.length ? parsed.messages : defaultSchoolData.messages,
       grades: parsed.grades?.length ? parsed.grades : defaultSchoolData.grades,
     }
   } catch {
@@ -248,7 +263,13 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
 
 export async function loadSchoolDataFromDatabase(): Promise<SchoolData | null> {
   try {
-    return await request<SchoolData>('/api/school-data')
+    const data = await request<Partial<SchoolData>>('/api/school-data')
+    return {
+      ...defaultSchoolData,
+      ...data,
+      student: { ...defaultSchoolData.student, ...data.student },
+      messages: data.messages?.length ? data.messages : defaultSchoolData.messages,
+    }
   } catch {
     return null
   }
