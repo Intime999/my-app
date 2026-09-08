@@ -46,6 +46,9 @@ export type SchoolData = {
 
 const STORAGE_KEY = 'educampus-school-db-v1'
 const ACCOUNTS_KEY = 'educampus-accounts-v1'
+const API_BASE_URL = (
+  (import.meta as ImportMeta & { env?: { VITE_API_URL?: string } }).env?.VITE_API_URL ?? ''
+).replace(/\/$/, '')
 
 export const defaultAccounts: Account[] = [
   {
@@ -210,7 +213,7 @@ export function saveAccount(account: Account): Account[] {
 }
 
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(url, {
+  const response = await fetch(`${API_BASE_URL}${url}`, {
     headers: { 'Content-Type': 'application/json' },
     ...options,
   })

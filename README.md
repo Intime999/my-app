@@ -13,6 +13,25 @@ npm run dev
 
 The API listens on port `3001`; Vite proxies `/api` requests to it. If the API is unavailable, the app falls back to its existing browser storage so the UI can still be used offline.
 
+## Production deployment
+
+GitHub Pages hosts the React frontend only. Deploy the Express API separately to a Node service such as Render, Railway, or Fly.io, and set these variables on the API service:
+
+```bash
+MONGODB_URI=your-mongodb-atlas-connection-string
+MONGODB_DB=educampus
+CLIENT_ORIGIN=https://intime999.github.io
+PORT=3001
+```
+
+Set `VITE_API_URL` to the public API URL when building the GitHub Pages site, for example:
+
+```bash
+VITE_API_URL=https://your-api.example.com npm run build
+```
+
+Without `VITE_API_URL`, the local Vite proxy is used during development. Without a deployed API, GitHub Pages uses browser storage because Pages cannot run the Express server.
+
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
 Currently, two official plugins are available:

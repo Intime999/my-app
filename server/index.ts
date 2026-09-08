@@ -19,6 +19,20 @@ type SchoolDataDocument = SchoolData & { _id: string }
 const schoolDataCollection = database.collection<SchoolDataDocument>('schoolData')
 const accountsCollection = database.collection<Account>('accounts')
 
+app.use((request, response, next) => {
+  const allowedOrigin = process.env.CLIENT_ORIGIN ?? '*'
+  response.header('Access-Control-Allow-Origin', allowedOrigin)
+  response.header('Access-Control-Allow-Headers', 'Content-Type')
+  response.header('Access-Control-Allow-Methods', 'GET,PUT,POST,OPTIONS')
+
+  if (request.method === 'OPTIONS') {
+    response.sendStatus(204)
+    return
+  }
+
+  next()
+})
+
 const initializeDatabase = async () => {
   await schoolDataCollection.updateOne(
     { _id: 'default' },
