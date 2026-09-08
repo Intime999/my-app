@@ -546,6 +546,40 @@
   font-weight: 700;
 }
 
+.assignment-download {
+  display: block;
+  margin-top: 12px;
+  color: #1d4ed8;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.file-input-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  grid-column: span 2;
+  color: #475569;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.file-input-label input {
+  padding: 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: white;
+  font: inherit;
+  font-weight: 400;
+}
+
+.file-input-label span {
+  color: #64748b;
+  font-size: 0.76rem;
+  font-weight: 400;
+}
+
 .task-workspace-actions {
   display: flex;
   align-items: flex-end;

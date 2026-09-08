@@ -84,6 +84,11 @@ function AssignmentsPage({ courses, tasks, statusOptions, onStatusChange, onAddT
               <strong>What to do</strong>
               <p>{activeTask.instructions || 'Review the lesson notes and complete the assigned work carefully.'}</p>
               <span>Suggested time: {activeTask.estimatedTime || '20 minutes'}</span>
+              {activeTask.attachment && (
+                <a className="assignment-download" href={activeTask.attachment.dataUrl} download={activeTask.attachment.name}>
+                  Download {activeTask.attachment.name}
+                </a>
+              )}
             </div>
           </div>
           <div className="task-workspace-actions">

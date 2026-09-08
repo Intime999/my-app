@@ -51,6 +51,7 @@ function App() {
     estimatedTime: '20 minutes',
   })
   const [newAnnouncement, setNewAnnouncement] = useState('')
+  const [newTaskFile, setNewTaskFile] = useState<File | null>(null)
 
   useEffect(() => {
     const hydrate = async () => {
@@ -195,12 +196,23 @@ function App() {
     }))
   }
 
-  const handleAddTask = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleAddTask = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     if (!newTask.title.trim()) {
       return
     }
+
+    const attachment = newTaskFile
+      ? {
+          name: newTaskFile.name,
+          dataUrl: await newTaskFile.arrayBuffer().then((buffer) => {
+            let binary = ''
+            new Uint8Array(buffer).forEach((byte) => { binary += String.fromCharCode(byte) })
+            return `data:${newTaskFile.type};base64,${btoa(binary)}`
+          }),
+        }
+      : undefined
 
     const nextTask = {
       title: newTask.title.trim(),
@@ -209,12 +221,14 @@ function App() {
       status: newTask.status,
       instructions: newTask.instructions.trim() || 'Review the lesson notes and complete the assigned work carefully.',
       estimatedTime: newTask.estimatedTime,
+      attachment,
     }
 
     const inserted = addTask(nextTask)
     setData(inserted)
     void saveSchoolDataToDatabase(inserted)
     setNewTask({ title: '', course: 'Mathematics', due: 'Tomorrow', status: 'Ready', instructions: '', estimatedTime: '20 minutes' })
+    setNewTaskFile(null)
     setShowTaskForm(false)
   }
 
@@ -524,6 +538,18 @@ function App() {
                   value={newTask.estimatedTime}
                   onChange={(event) => setNewTask((current) => ({ ...current, estimatedTime: event.target.value }))}
                 />
+                <label className="file-input-label">
+                  PDF resource for students
+                  <input
+                    type="file"
+                    accept="application/pdf,.pdf"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0] ?? null
+                      setNewTaskFile(file && file.size <= 8 * 1024 * 1024 ? file : null)
+                    }}
+                  />
+                  {newTaskFile ? <span>{newTaskFile.name}</span> : <span>Optional, up to 8 MB</span>}
+                </label>
                 <select
                   value={newTask.status}
                   onChange={(event) => setNewTask((current) => ({ ...current, status: event.target.value }))}

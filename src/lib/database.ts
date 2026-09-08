@@ -14,6 +14,10 @@ export type Task = {
   status: string
   instructions?: string
   estimatedTime?: string
+  attachment?: {
+    name: string
+    dataUrl: string
+  }
 }
 
 export type ScheduleItem = {
