@@ -301,6 +301,8 @@ function App() {
     if (href === '#grades') {
       event.preventDefault()
       setCurrentView('grades')
+      window.history.replaceState(null, '', '#grades')
+      return
     }
   }
 
