@@ -75,6 +75,7 @@
   justify-content: center;
   padding: 52px 42px;
   background: rgba(255, 255, 255, 0.8);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
 
@@ -447,6 +448,40 @@
   color: #0f172a;
   font-size: 1.2rem;
 }
+
+.assignments-page { padding-top: 8px; }
+
+.assignments-page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.assignments-page-header h1 { margin: 4px 0 8px; color: #0f172a; font-size: clamp(2rem, 4vw, 3rem); }
+.assignments-page-header > div > p:last-child { margin: 0; color: #64748b; }
+
+.assignment-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 24px; }
+.assignment-summary div { display: flex; flex-direction: column; gap: 4px; padding: 18px; border-left: 4px solid #2563eb; border-radius: 14px; background: white; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05); }
+.assignment-summary div:nth-child(2) { border-left-color: #16a34a; }
+.assignment-summary div:nth-child(3) { border-left-color: #f97316; }
+.assignment-summary strong { color: #0f172a; font-size: 1.7rem; }
+.assignment-summary span { color: #64748b; font-size: 0.85rem; }
+
+.subject-assignment-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.subject-assignment-card { padding: 22px; border: 1px solid rgba(148, 163, 184, 0.24); border-radius: 20px; background: rgba(255, 255, 255, 0.86); box-shadow: 0 12px 32px rgba(15, 23, 42, 0.04); }
+.subject-card-header { display: flex; justify-content: space-between; gap: 16px; }
+.subject-card-header h2 { margin: 7px 0 3px; color: #0f172a; font-size: 1.35rem; }
+.subject-card-header p { margin: 0; color: #64748b; }
+.subject-count { color: #2563eb; font-weight: 700; white-space: nowrap; }
+.subject-progress { height: 7px; margin: 18px 0; overflow: hidden; border-radius: 999px; background: #e2e8f0; }
+.subject-progress span { display: block; height: 100%; border-radius: inherit; background: #2563eb; }
+.take-home-list { display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.take-home-list li { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 0; border-top: 1px solid #e2e8f0; }
+.take-home-list h3 { margin: 0 0 3px; color: #0f172a; font-size: 0.98rem; }
+.take-home-list p, .empty-subject { margin: 0; color: #64748b; font-size: 0.85rem; }
+.empty-subject { padding: 8px 0 4px; }
 
 .my-course-page {
   margin-top: 22px;
@@ -839,6 +874,10 @@
     grid-template-columns: 1fr;
   }
 
+  .subject-assignment-grid {
+    grid-template-columns: 1fr;
+  }
+
   .my-course-grid {
     grid-template-columns: 1fr;
   }
@@ -860,9 +899,18 @@
   .topbar,
   .hero-card,
   .class-list li,
-  .assignment-list li {
+  .assignment-list li,
+  .assignments-page-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .assignment-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .assignments-page-header .primary-btn {
+    width: 100%;
   }
 
   .schedule-grid {

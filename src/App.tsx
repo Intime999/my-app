@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { addAnnouncement, addTask, defaultSchoolData, loadAccounts, loadAccountsFromDatabase, loadSchoolData, loadSchoolDataFromDatabase, migrateDataToDatabase, saveAccount, saveAccountToDatabase, saveSchoolData, saveSchoolDataToDatabase, type Account, type SchoolData } from './lib/database'
 import MyCourse from './mycourse'
+import AssignmentsPage from './assignments'
 import './App.css'
 
 const navItems = [
@@ -30,7 +31,7 @@ function App() {
   })
   const [data, setData] = useState<SchoolData>(defaultSchoolData)
   const [isHydrated, setIsHydrated] = useState(false)
-  const [currentView, setCurrentView] = useState<'dashboard' | 'courses'>('dashboard')
+  const [currentView, setCurrentView] = useState<'dashboard' | 'courses' | 'assignments'>('dashboard')
   const [selectedCourseId, setSelectedCourseId] = useState('bio')
   const [showTaskForm, setShowTaskForm] = useState(false)
   const [showCourseForm, setShowCourseForm] = useState(false)
@@ -252,6 +253,11 @@ function App() {
       event.preventDefault()
       setCurrentView('dashboard')
     }
+
+    if (href === '#assignments') {
+      event.preventDefault()
+      setCurrentView('assignments')
+    }
   }
 
   if (!isLoggedIn) {
@@ -363,7 +369,7 @@ function App() {
           {navItems.map((item) => (
             <a
               key={item.label}
-              className={(item.href === '#dashboard' && currentView === 'dashboard') || (item.href === '#mycourses' && currentView === 'courses') ? 'active' : ''}
+              className={(item.href === '#dashboard' && currentView === 'dashboard') || (item.href === '#mycourses' && currentView === 'courses') || (item.href === '#assignments' && currentView === 'assignments') ? 'active' : ''}
               href={item.href}
               onClick={(event) => handleNavigation(event, item.href)}
             >
@@ -381,7 +387,7 @@ function App() {
         </div>
       </aside>
 
-      <main className="main-content" id={currentView === 'dashboard' ? 'dashboard' : 'mycourses'}>
+      <main className="main-content" id={currentView === 'dashboard' ? 'dashboard' : currentView === 'courses' ? 'mycourses' : 'assignments'}>
         {currentView === 'courses' ? (
           <MyCourse
             courses={data.courses}
@@ -389,6 +395,18 @@ function App() {
             onSelectCourse={chooseCourse}
             onAddCourse={addCourseFromPage}
             onRemoveCourse={removeCourseFromPage}
+          />
+        ) : currentView === 'assignments' ? (
+          <AssignmentsPage
+            courses={data.courses}
+            tasks={data.tasks}
+            statusOptions={statusOptions}
+            onStatusChange={handleTaskStatusChange}
+            onAddTask={() => {
+              setCurrentView('dashboard')
+              setShowTaskForm(true)
+              window.requestAnimationFrame(() => document.getElementById('assignments')?.scrollIntoView({ behavior: 'smooth' }))
+            }}
           />
         ) : (
           <>
