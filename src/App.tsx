@@ -419,12 +419,14 @@ function App() {
             courses={data.courses}
             tasks={data.tasks}
             statusOptions={statusOptions}
+            newTask={newTask}
+            newTaskFile={newTaskFile}
+            showTaskForm={showTaskForm}
             onStatusChange={handleTaskStatusChange}
-            onAddTask={() => {
-              setCurrentView('dashboard')
-              setShowTaskForm(true)
-              window.requestAnimationFrame(() => document.getElementById('assignments')?.scrollIntoView({ behavior: 'smooth' }))
-            }}
+            onToggleTaskForm={() => setShowTaskForm((current) => !current)}
+            onTaskChange={(field, value) => setNewTask((current) => ({ ...current, [field]: value }))}
+            onTaskFileChange={setNewTaskFile}
+            onAddTask={handleAddTask}
           />
         ) : (
           <>
@@ -433,9 +435,6 @@ function App() {
             <p className="eyebrow">Good morning</p>
             <h1>Welcome back, {data.student.name.split(' ')[0]}</h1>
           </div>
-          <button type="button" className="primary-btn" onClick={() => setShowTaskForm((current) => !current)}>
-            {showTaskForm ? 'Close form' : 'Add task'}
-          </button>
         </header>
 
         <section className="hero-card">
@@ -505,62 +504,6 @@ function App() {
               <h3>Upcoming tasks</h3>
               <a href="#assignments">Open planner</a>
             </div>
-
-            {showTaskForm && (
-              <form className="inline-form" onSubmit={handleAddTask}>
-                <input
-                  type="text"
-                  placeholder="Task title"
-                  value={newTask.title}
-                  onChange={(event) => setNewTask((current) => ({ ...current, title: event.target.value }))}
-                />
-                <input
-                  type="text"
-                  placeholder="Course"
-                  value={newTask.course}
-                  onChange={(event) => setNewTask((current) => ({ ...current, course: event.target.value }))}
-                />
-                <input
-                  type="text"
-                  placeholder="Due date"
-                  value={newTask.due}
-                  onChange={(event) => setNewTask((current) => ({ ...current, due: event.target.value }))}
-                />
-                <input
-                  type="text"
-                  placeholder="What should the student do?"
-                  value={newTask.instructions}
-                  onChange={(event) => setNewTask((current) => ({ ...current, instructions: event.target.value }))}
-                />
-                <input
-                  type="text"
-                  placeholder="Estimated time"
-                  value={newTask.estimatedTime}
-                  onChange={(event) => setNewTask((current) => ({ ...current, estimatedTime: event.target.value }))}
-                />
-                <label className="file-input-label">
-                  PDF resource for students
-                  <input
-                    type="file"
-                    accept="application/pdf,.pdf"
-                    onChange={(event) => {
-                      const file = event.target.files?.[0] ?? null
-                      setNewTaskFile(file && file.size <= 8 * 1024 * 1024 ? file : null)
-                    }}
-                  />
-                  {newTaskFile ? <span>{newTaskFile.name}</span> : <span>Optional, up to 8 MB</span>}
-                </label>
-                <select
-                  value={newTask.status}
-                  onChange={(event) => setNewTask((current) => ({ ...current, status: event.target.value }))}
-                >
-                  {statusOptions.map((status) => (
-                    <option key={status} value={status}>{status}</option>
-                  ))}
-                </select>
-                <button type="submit" className="small-btn">Save task</button>
-              </form>
-            )}
 
             <ul className="assignment-list">
               {data.tasks.map((task) => (

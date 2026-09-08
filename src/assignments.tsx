@@ -1,15 +1,30 @@
 import { useState } from 'react'
 import type { Course, Task } from './lib/database'
 
+type NewTask = {
+  title: string
+  course: string
+  due: string
+  status: string
+  instructions: string
+  estimatedTime: string
+}
+
 type AssignmentsPageProps = {
   courses: Course[]
   tasks: Task[]
   statusOptions: string[]
+  newTask: NewTask
+  newTaskFile: File | null
+  showTaskForm: boolean
   onStatusChange: (taskId: string, status: string) => void
-  onAddTask: () => void
+  onToggleTaskForm: () => void
+  onTaskChange: (field: keyof NewTask, value: string) => void
+  onTaskFileChange: (file: File | null) => void
+  onAddTask: (event: React.FormEvent<HTMLFormElement>) => void
 }
 
-function AssignmentsPage({ courses, tasks, statusOptions, onStatusChange, onAddTask }: AssignmentsPageProps) {
+function AssignmentsPage({ courses, tasks, statusOptions, newTask, newTaskFile, showTaskForm, onStatusChange, onToggleTaskForm, onTaskChange, onTaskFileChange, onAddTask }: AssignmentsPageProps) {
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null)
   const completedTasks = tasks.filter((task) => task.status === 'Completed').length
   const activeTask = tasks.find((task) => task.id === activeTaskId)
@@ -22,8 +37,32 @@ function AssignmentsPage({ courses, tasks, statusOptions, onStatusChange, onAddT
           <h1>Take-home assignments</h1>
           <p>Keep every subject's work in one place and pick up where you left off.</p>
         </div>
-        <button type="button" className="primary-btn" onClick={onAddTask}>Add assignment</button>
+        <button type="button" className="primary-btn" onClick={onToggleTaskForm}>
+          {showTaskForm ? 'Close form' : 'Add assignment'}
+        </button>
       </header>
+
+      {showTaskForm && (
+        <form className="assignment-form" onSubmit={onAddTask}>
+          <h2>Write a new assignment</h2>
+          <div className="assignment-form-grid">
+            <input type="text" placeholder="Assignment title" value={newTask.title} onChange={(event) => onTaskChange('title', event.target.value)} required />
+            <input type="text" placeholder="Subject" value={newTask.course} onChange={(event) => onTaskChange('course', event.target.value)} required />
+            <input type="text" placeholder="Due date" value={newTask.due} onChange={(event) => onTaskChange('due', event.target.value)} required />
+            <input type="text" placeholder="Estimated time" value={newTask.estimatedTime} onChange={(event) => onTaskChange('estimatedTime', event.target.value)} />
+            <textarea placeholder="Write clear instructions for the student" value={newTask.instructions} onChange={(event) => onTaskChange('instructions', event.target.value)} rows={4} />
+            <label className="file-input-label">
+              PDF resource for students
+              <input type="file" accept="application/pdf,.pdf" onChange={(event) => {
+                const file = event.target.files?.[0] ?? null
+                onTaskFileChange(file && file.size <= 8 * 1024 * 1024 ? file : null)
+              }} />
+              <span>{newTaskFile ? newTaskFile.name : 'Optional, up to 8 MB'}</span>
+            </label>
+          </div>
+          <button type="submit" className="small-btn">Publish assignment</button>
+        </form>
+      )}
 
       <div className="assignment-summary">
         <div><strong>{tasks.length}</strong><span>Total assignments</span></div>

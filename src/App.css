@@ -462,6 +462,19 @@
 .assignments-page-header h1 { margin: 4px 0 8px; color: #0f172a; font-size: clamp(2rem, 4vw, 3rem); }
 .assignments-page-header > div > p:last-child { margin: 0; color: #64748b; }
 
+.assignment-form {
+  margin-bottom: 24px;
+  padding: 22px;
+  border: 1px solid #bfdbfe;
+  border-radius: 20px;
+  background: #eff6ff;
+}
+
+.assignment-form h2 { margin: 0 0 16px; color: #0f172a; font-size: 1.2rem; }
+.assignment-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+.assignment-form input, .assignment-form textarea { width: 100%; min-width: 0; padding: 11px 12px; border: 1px solid #cbd5e1; border-radius: 10px; background: white; color: #0f172a; font: inherit; }
+.assignment-form textarea { grid-column: span 2; resize: vertical; }
+
 .assignment-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 24px; }
 .assignment-summary div { display: flex; flex-direction: column; gap: 4px; padding: 18px; border-left: 4px solid #2563eb; border-radius: 14px; background: white; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05); }
 .assignment-summary div:nth-child(2) { border-left-color: #16a34a; }
@@ -1049,6 +1062,15 @@
 
   .my-course-form {
     grid-template-columns: 1fr;
+  }
+
+  .assignment-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .assignment-form textarea,
+  .file-input-label {
+    grid-column: span 1;
   }
 
 }
