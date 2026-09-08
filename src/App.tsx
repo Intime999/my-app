@@ -481,7 +481,7 @@ function App() {
           </div>
         </section>
 
-        <section className="stats-grid" id="grades">
+        <section className="stats-grid">
           {data.stats.map((item) => (
             <article key={item.label} className={`stat-card ${item.tone}`}>
               <span>{item.label}</span>
