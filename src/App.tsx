@@ -614,21 +614,6 @@ function App() {
         )}
 
         <section className="bottom-grid">
-          <div className="panel" id="calendar">
-            <div className="panel-header">
-              <h3>Weekly schedule</h3>
-            </div>
-            <div className="schedule-grid">
-              {data.schedule.map((item) => (
-                <div key={item.id} className={`day-card ${item.active ? 'highlight' : ''}`}>
-                  <span>{item.day}</span>
-                  <strong>{item.label}</strong>
-                  <small>{item.slot}</small>
-                </div>
-              ))}
-            </div>
-          </div>
-
           <div className="panel" id="messages">
             <div className="panel-header">
               <h3>Announcements</h3>
