@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { Course, Task } from './lib/database'
 
 type AssignmentsPageProps = {
@@ -9,7 +10,9 @@ type AssignmentsPageProps = {
 }
 
 function AssignmentsPage({ courses, tasks, statusOptions, onStatusChange, onAddTask }: AssignmentsPageProps) {
+  const [activeTaskId, setActiveTaskId] = useState<string | null>(null)
   const completedTasks = tasks.filter((task) => task.status === 'Completed').length
+  const activeTask = tasks.find((task) => task.id === activeTaskId)
 
   return (
     <section className="assignments-page" id="assignments">
@@ -56,14 +59,12 @@ function AssignmentsPage({ courses, tasks, statusOptions, onStatusChange, onAddT
                         <h3>{task.title}</h3>
                         <p>{task.due}</p>
                       </div>
-                      <select
-                        className={`status-select assignment-status ${task.status.toLowerCase().replaceAll(' ', '-')}`}
-                        value={task.status}
-                        aria-label={`Status for ${task.title}`}
-                        onChange={(event) => onStatusChange(task.id, event.target.value)}
-                      >
-                        {statusOptions.map((status) => <option key={status} value={status}>{status}</option>)}
-                      </select>
+                      <div className="task-actions">
+                        <span className={`task-status ${task.status.toLowerCase().replaceAll(' ', '-')}`}>{task.status}</span>
+                        <button type="button" className="small-btn task-open-btn" onClick={() => setActiveTaskId(task.id)}>
+                          {task.status === 'Completed' ? 'Review' : 'Open task'}
+                        </button>
+                      </div>
                     </li>
                   ))}
                 </ul>
@@ -72,6 +73,36 @@ function AssignmentsPage({ courses, tasks, statusOptions, onStatusChange, onAddT
           )
         })}
       </div>
+
+      {activeTask && (
+        <div className="task-workspace" aria-live="polite">
+          <div>
+            <p className="eyebrow">Task workspace</p>
+            <h2>{activeTask.title}</h2>
+            <p>{activeTask.course} - {activeTask.due}</p>
+          </div>
+          <div className="task-workspace-actions">
+            <label>
+              Progress
+              <select
+                className="status-select"
+                value={activeTask.status}
+                onChange={(event) => onStatusChange(activeTask.id, event.target.value)}
+              >
+                {statusOptions.map((status) => <option key={status} value={status}>{status}</option>)}
+              </select>
+            </label>
+            <button
+              type="button"
+              className="primary-btn"
+              onClick={() => onStatusChange(activeTask.id, activeTask.status === 'Completed' ? 'Ready' : 'Completed')}
+            >
+              {activeTask.status === 'Completed' ? 'Reopen task' : 'Mark as complete'}
+            </button>
+            <button type="button" className="ghost-btn" onClick={() => setActiveTaskId(null)}>Close</button>
+          </div>
+        </div>
+      )}
     </section>
   )
 }

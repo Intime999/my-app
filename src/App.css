@@ -483,6 +483,58 @@
 .take-home-list p, .empty-subject { margin: 0; color: #64748b; font-size: 0.85rem; }
 .empty-subject { padding: 8px 0 4px; }
 
+.task-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.task-status {
+  color: #64748b;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.task-status.completed { color: #15803d; }
+.task-status.in-review { color: #2563eb; }
+.task-status.pending { color: #c2410c; }
+
+.task-open-btn {
+  padding: 8px 10px;
+  font-size: 0.78rem;
+}
+
+.task-workspace {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 22px;
+  padding: 24px;
+  border: 1px solid #bfdbfe;
+  border-radius: 20px;
+  background: #eff6ff;
+}
+
+.task-workspace h2 { margin: 4px 0; color: #0f172a; }
+.task-workspace p:last-child { margin: 0; color: #64748b; }
+
+.task-workspace-actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.task-workspace-actions label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  color: #475569;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
 .my-course-page {
   margin-top: 22px;
   padding: 28px;
